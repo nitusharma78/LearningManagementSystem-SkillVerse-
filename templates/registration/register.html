@@ -1,0 +1,114 @@
+{% extends 'registration/registration_base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans 'SkillVerse - Create Account' %}{% endblock title %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">
+            <i class="fas fa-user-plus me-2"></i>{% trans 'Create Your Account' %}
+          </h3>
+        </div>
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <h5 class="mb-3">{% trans 'Select Your Role' %}</h5>
+            <div class="btn-group" role="group">
+              <input type="radio" class="btn-check" name="role" id="student" value="student" checked />
+              <label class="btn btn-outline-primary px-4" for="student">
+                <i class="fas fa-user-graduate me-2"></i>{% trans 'Student' %}
+              </label>
+              <input type="radio" class="btn-check" name="role" id="lecturer" value="lecturer" />
+              <label class="btn btn-outline-primary px-4" for="lecturer">
+                <i class="fas fa-chalkboard-teacher me-2"></i>{% trans 'Lecturer' %}
+              </label>
+            </div>
+          </div>
+          <form action="" method="POST" id="register-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="selected_role" id="selected_role" value="student" />
+            {% if form.errors %}
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-circle me-2"></i>{% trans 'Please correct the errors below.' %}
+            </div>
+            {% endif %}
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="mb-3 text-primary">
+                  <i class="fas fa-user me-2"></i>{% trans 'Account Details' %}
+                </h5>
+                <div class="mb-3">{{ form.email|as_crispy_field }}</div>
+                <div class="mb-3">{{ form.password1|as_crispy_field }}</div>
+                <div class="mb-3">{{ form.password2|as_crispy_field }}</div>
+              </div>
+              <div class="col-md-6">
+                <h5 class="mb-3 text-primary">
+                  <i class="fas fa-address-card me-2"></i>{% trans 'Personal Information' %}
+                </h5>
+                <div class="mb-3">{{ form.first_name|as_crispy_field }}</div>
+                <div class="mb-3">{{ form.last_name|as_crispy_field }}</div>
+                <div class="mb-3">{{ form.gender|as_crispy_field }}</div>
+                <div class="mb-3 lecturer-field" style="display: none">{{ form.phone|as_crispy_field }}</div>
+                <div class="mb-3 lecturer-field" style="display: none">{{ form.address|as_crispy_field }}</div>
+                <div class="mb-3 student-field">{{ form.program|as_crispy_field }}</div>
+                <div class="mb-3 student-field">{{ form.level|as_crispy_field }}</div>
+              </div>
+            </div>
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-primary btn-lg px-5">
+                <i class="fas fa-user-plus me-2"></i>{% trans 'Create Account' %}
+              </button>
+            </div>
+          </form>
+          <div class="text-center mt-4">
+            <p class="mb-0">{% trans 'Already have an account?' %} <a href="{% url 'login' %}" class="text-primary">{% trans 'Login here' %}</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card { border: none; border-radius: 15px; }
+  .card-header { border-radius: 15px 15px 0 0 !important; padding: 1.5rem; }
+  .form-control { padding: 0.75rem 1rem; border-radius: 8px; }
+  .form-control:focus { box-shadow: none; border-color: #0d6efd; }
+  .btn-lg { padding: 12px 30px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 8px; }
+  .btn-check:checked + .btn-outline-primary { font-weight: 500; }
+</style>
+
+{% endblock content %}
+
+{% block js %}
+<script>
+  $(document).ready(function () {
+    $('input[name="role"]').change(function () {
+      var role = $(this).val();
+      $("#selected_role").val(role);
+      if (role === "student") {
+        $(".lecturer-field").hide();
+        $(".student-field").show();
+      } else {
+        $(".student-field").hide();
+        $(".lecturer-field").show();
+      }
+    });
+    var initialRole = $('input[name="role"]:checked').val();
+    if (initialRole === "lecturer") {
+      $(".student-field").hide();
+      $(".lecturer-field").show();
+    } else {
+      $(".student-field").show();
+      $(".lecturer-field").hide();
+    }
+    $("#register-form").submit(function () {
+      $(this).find('button[type="submit"]').html('<i class="fas fa-spinner fa-spin me-2"></i>{% trans "Creating Account..." %}').addClass("disabled");
+    });
+  });
+</script>
+{% endblock js %}
